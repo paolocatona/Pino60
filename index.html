@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Operazione Novara – Verifica Risposte</title>
+  <style>
+    body{font-family:system-ui;margin:24px;max-width:760px;line-height:1.4}
+    h1{margin-bottom:6px}
+    .row{margin-top:10px}
+    input,button{font-size:18px;padding:10px}
+    input{width:100%;box-sizing:border-box}
+    button{cursor:pointer}
+    .box{padding:14px;border:1px solid #ddd;border-radius:10px;margin-top:14px}
+    .ok{border-color:#2e7d32}
+    .ko{border-color:#c62828}
+    .small{color:#666;font-size:14px}
+    code{background:#f4f4f4;padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <h1>Operazione 1849 – Verifica</h1>
+  <div class="small">
+    Inserisci <b>Tappa</b> (1–8) e <b>Risposta</b>. Se corretta, ottieni la lettera.
+  </div>
+
+  <div class="row">
+    <input id="step" type="number" min="1" max="8" placeholder="Tappa (1-8)" />
+  </div>
+
+  <div class="row">
+    <input id="answer" type="text" placeholder="Risposta (es. 23 marzo 1849)" />
+  </div>
+
+  <div class="row">
+    <button id="check">Verifica</button>
+  </div>
+
+  <div id="out" class="box" style="display:none"></div>
+
+  <script>
+    // Config: risposte attese + lettera rilasciata
+    const KEY = {
+      1: { answers: ["castello"], letter: "P" },
+      2: { answers: ["teatro coccia", "coccia"], letter: "A" },
+      3: { answers: ["broletto"], letter: "N" },
+      4: { answers: ["duomo"], letter: "I" },
+      5: { answers: ["san gaudenzio", "gaudenzio"], letter: "S" },
+      6: { answers: ["perazzi", "via perazzi", "costantino perazzi"], letter: "C" },
+      7: { answers: ["23 marzo 1849", "23/03/1849", "23-03-1849"], letter: "I" },
+      8: { answers: ["paniscia", "circolo della paniscia"], letter: "A" }
+    };
+
+    // Normalizzazione: minuscole, no accenti, spazi puliti
+    function normalize(s){
+      return (s || "")
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/\s+/g," ")
+        .trim();
+    }
+
+    document.getElementById("check").addEventListener("click", () => {
+      const step = Number(document.getElementById("step").value);
+      const ans = normalize(document.getElementById("answer").value);
+      const out = document.getElementById("out");
+      out.style.display = "block";
+
+      if (!KEY[step]) {
+        out.className = "box ko";
+        out.textContent = "Tappa non valida (usa 1–8).";
+        return;
+      }
+
+      const expected = KEY[step].answers.map(normalize);
+      const ok = expected.includes(ans);
+
+      if (ok) {
+        out.className = "box ok";
+        out.innerHTML = `✅ Corretto.<br><b>Lettera:</b> <code>${KEY[step].letter}</code>`;
+      } else {
+        out.className = "box ko";
+        out.innerHTML = "❌ Non corretto. Riprova (controlla spazi o formato data).";
+      }
+    });
+  </script>
+</body>
+</html>
